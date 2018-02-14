@@ -11,10 +11,13 @@ import Data.List (List, toUnfoldable)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Data.String (fromCharArray)
-import Text.Parsing.Parser (Parser, parseErrorMessage, runParser)
+import Data.Identity (Identity)
+import Text.Parsing.Parser (Parser, ParserT, parseErrorMessage, runParser)
 import Text.Parsing.Parser.Combinators (sepBy)
 import Text.Parsing.Parser.String (satisfy, string)
+import Control.Monad.Free (Free)
 
+type SafeParser s = ParserT s (Free Identity)
 
 data Param = Param String String
 
@@ -36,10 +39,10 @@ parse str = case runParser str queryString of
     Left err -> Left $ parseErrorMessage err
     Right result -> Right $ toUnfoldable result
 
-queryString :: Parser String (List Param)
+queryString :: SafeParser String (List Param)
 queryString = sepBy param (string "&")
 
-param :: Parser String Param
+param :: SafeParser String Param
 param = do
     name <- liftM1 (decode <<< fromCharArray) $ some $ satisfy (\s -> s /= '=')
     _ <- string "="
