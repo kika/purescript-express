@@ -17,8 +17,6 @@ import Text.Parsing.Parser (ParserT, parseErrorMessage, runParserT)
 import Text.Parsing.Parser.Combinators (sepBy)
 import Text.Parsing.Parser.String (class StringLike, satisfy, string)
 
-type SafeParser s = ParserT s (Free Identity)
-
 data Param = Param String String
 
 instance showParam :: Show Param where
